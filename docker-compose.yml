@@ -1,0 +1,109 @@
+name: company-assistant
+
+x-app: &app
+  build: .
+  image: company-assistant:dev
+  env_file: .env
+  environment: &app-env
+    DATABASE_URL: postgresql://assistant:assistant@postgres:5432/assistant
+    REDIS_URL: redis://redis:6379/0
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+    # Tokens are issued for the browser-facing URL; containers fetch keys over the internal one.
+    OIDC_ISSUER: http://localhost:8080/realms/company
+    OIDC_JWKS_URL: http://keycloak:8080/realms/company/protocol/openid-connect/certs
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg17
+    environment:
+      POSTGRES_USER: assistant
+      POSTGRES_PASSWORD: assistant
+      POSTGRES_DB: assistant
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assistant -d assistant"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    # Redis 8 ships the query engine (vector search) used by the semantic cache.
+    image: redis:8.8.3
+    ports: ["6379:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  jaeger:
+    image: jaegertracing/jaeger:2.22.0
+    ports:
+      - "16686:16686"  # UI
+      - "4318:4318"    # OTLP HTTP
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+    ports: ["8080:8080"]
+    volumes: ["./config/keycloak:/opt/keycloak/data/import:ro"]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          grep -q '"UP"' <&3
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  hr-mcp:
+    <<: *app
+    command: ["python", "-m", "assistant.mcp_servers.hr", "--port", "8101",
+              "--public-url", "http://hr-mcp:8101/mcp", "--allowed-hosts", "hr-mcp:8101"]
+    depends_on:
+      keycloak: {condition: service_healthy}
+
+  jira-mcp:
+    <<: *app
+    command: ["python", "-m", "assistant.mcp_servers.jira", "--port", "8102",
+              "--public-url", "http://jira-mcp:8102/mcp", "--allowed-hosts", "jira-mcp:8102"]
+    depends_on:
+      keycloak: {condition: service_healthy}
+
+  slack-mcp:
+    <<: *app
+    command: ["python", "-m", "assistant.mcp_servers.slack", "--port", "8103",
+              "--public-url", "http://slack-mcp:8103/mcp", "--allowed-hosts", "slack-mcp:8103"]
+    depends_on:
+      keycloak: {condition: service_healthy}
+
+  api:
+    <<: *app
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      keycloak: {condition: service_healthy}
+      hr-mcp: {condition: service_started}
+      jira-mcp: {condition: service_started}
+      slack-mcp: {condition: service_started}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/readyz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  pgdata:
+  redisdata:

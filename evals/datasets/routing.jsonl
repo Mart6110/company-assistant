@@ -1,0 +1,12 @@
+{"id": "rt-1", "input": "How many days of annual leave do I get?", "complexity": "simple", "expect": "small"}
+{"id": "rt-2", "input": "What's the hotel limit in Paris?", "complexity": "simple", "expect": "small"}
+{"id": "rt-3", "input": "How many vacation days do I have left?", "complexity": "simple", "expect": "small"}
+{"id": "rt-4", "input": "Open a ticket: my monitor flickers.", "complexity": "simple", "expect": "small"}
+{"id": "rt-5", "input": "Which day is the team day?", "complexity": "simple", "expect": "small"}
+{"id": "rt-6", "input": "When must carried-over days be used?", "complexity": "simple", "expect": "small"}
+{"id": "rt-7", "input": "If I start on 1 April and work 80%, how many days of leave do I get this year?", "complexity": "complex", "expect": "frontier"}
+{"id": "rt-8", "input": "I want to work from Spain for 3 weeks in December and also take 5 days of leave. What do I need to do, and does the leave count toward the 20-day limit?", "complexity": "complex", "expect": "frontier"}
+{"id": "rt-9", "input": "Compare the meal per diem with claiming actual costs for a 4-day trip to London. Which is better?", "complexity": "complex", "expect": "frontier"}
+{"id": "rt-10", "input": "Draft a short announcement for my team explaining the hybrid policy and the home office allowance.", "complexity": "complex", "expect": "frontier"}
+{"id": "rt-11", "input": "I was sick for 2 days during my holiday in Italy, had no doctor there, and my balance looks wrong. What applies?", "complexity": "complex", "expect": "frontier"}
+{"id": "rt-12", "input": "Thanks, that's all!", "complexity": "simple", "expect": "small"}

@@ -1,0 +1,64 @@
+name: release-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+jobs:
+  checks:
+    name: lint, unit tests, offline evals
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e ".[dev]"
+      - run: ruff check assistant tests evals
+      - run: pytest
+      - run: python -m evals.run --offline --gate
+
+  online-evals:
+    name: integration tests and online evals
+    needs: checks
+    # Online evals cost tokens: they run on pushes to main and tags, and only once you opt in by
+    # setting the repository variable RUN_ONLINE_EVALS=true and the API-key secrets below.
+    if: github.event_name == 'push' && vars.RUN_ONLINE_EVALS == 'true'
+    runs-on: ubuntu-latest
+    env:
+      AUTH_MODE: dev
+      ENVIRONMENT: test
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: cp .env.example .env && echo "AUTH_MODE=dev" >> .env
+      - run: docker compose up -d --build --wait postgres redis jaeger hr-mcp jira-mcp slack-mcp
+      - run: pip install -e ".[dev]"
+      - name: integration tests
+        run: pytest -m integration
+        env:
+          DATABASE_URL: postgresql://assistant:assistant@localhost:5432/assistant
+          REDIS_URL: redis://localhost:6379/0
+      - name: ingest policies and run online evals
+        run: |
+          docker compose run --rm -e AUTH_MODE=dev api python -m assistant.rag.ingest data/policies --prune
+          docker compose run --rm -e AUTH_MODE=dev -v "$PWD/evals/reports:/app/evals/reports" api \
+            python -m evals.run --online --gate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: eval-reports, path: evals/reports/}
+
+  release:
+    name: build and publish image
+    # A skipped online-evals job (not opted in) skips the release too: nothing ships ungated.
+    needs: [checks, online-evals]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t company-assistant:${GITHUB_REF_NAME} .
+      # Push to your registry here. This job only runs if every gate above passed.

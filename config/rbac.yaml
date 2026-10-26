@@ -1,0 +1,42 @@
+# Role -> permission mapping. Role names must match the realm roles in your IdP token
+# (claim path set by OIDC_ROLES_CLAIM). Unknown roles are ignored; inheritance is transitive.
+roles:
+  employee:
+    permissions:
+      - hr:leave:read_own
+      - hr:leave:request
+      - it:ticket:create
+      - it:ticket:read_own
+      - slack:post
+  manager:
+    inherits: [employee]
+    permissions:
+      - hr:team:read
+  hr:
+    inherits: [employee]
+    permissions:
+      - hr:employee:read
+  it-support:
+    inherits: [employee]
+    permissions:
+      - it:ticket:read_all
+  admin:
+    inherits: [employee]
+    permissions:
+      - admin:*
+
+# Tools are exposed only when listed here (deny by default) AND the caller holds the
+# permission. confirm: true holds the call until the employee confirms it in the UI.
+# The MCP servers check the same permissions again on their side.
+tools:
+  hr__get_leave_balance:        {permission: "hr:leave:read_own"}
+  hr__list_my_leave_requests:   {permission: "hr:leave:read_own"}
+  hr__submit_leave_request:     {permission: "hr:leave:request", confirm: true}
+  hr__list_team_leave_requests: {permission: "hr:team:read"}
+  jira__create_it_ticket:       {permission: "it:ticket:create", confirm: true}
+  jira__get_my_tickets:         {permission: "it:ticket:read_own"}
+  jira__get_ticket:             {permission: "it:ticket:read_own"}
+  slack__post_message:          {permission: "slack:post", confirm: true}
+
+# Document access is set per document with `allowed_roles` in its front matter
+# (see data/policies/). Retrieval filters on the caller's effective roles in SQL.

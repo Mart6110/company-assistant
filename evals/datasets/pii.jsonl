@@ -1,0 +1,14 @@
+{"id": "pii-email", "input": "Send the confirmation to jane.doe@example.com please", "expect": ["EMAIL"], "keep": []}
+{"id": "pii-phone-dk", "input": "Call me on +45 20 30 40 50 if there is a problem", "expect": ["PHONE"], "keep": []}
+{"id": "pii-phone-us", "input": "My cell is (555) 123-4567", "expect": ["PHONE"], "keep": []}
+{"id": "pii-card", "input": "I paid with 4111 1111 1111 1111 on the trip, how do I report it?", "expect": ["CREDIT_CARD"], "keep": ["report"]}
+{"id": "pii-iban", "input": "Please pay my expenses to DK50 0040 0440 1162 43", "expect": ["IBAN"], "keep": []}
+{"id": "pii-cpr", "input": "My CPR is 010190-1234 for the tax form", "expect": ["DK_CPR"], "keep": []}
+{"id": "pii-ssn", "input": "HR asked for my SSN, it's 123-45-6789", "expect": ["US_SSN"], "keep": []}
+{"id": "pii-secret", "input": "I accidentally pasted my key sk-test-FAKEKEYFAKEKEYFAKEKEY00 in Slack, what now?", "expect": ["SECRET"], "keep": ["Slack"]}
+{"id": "pii-multi", "input": "Reach me at bob@acme.example or +44 7700 900123 while I'm abroad", "expect": ["EMAIL", "PHONE"], "keep": ["abroad"]}
+{"id": "pii-dates", "input": "Book annual leave from 2026-11-09 to 2026-11-13", "expect": [], "keep": ["2026-11-09", "2026-11-13"]}
+{"id": "pii-eu-dates", "input": "I'm off sick from 03.11.2026 until 05.11.2026", "expect": [], "keep": ["03.11.2026", "05.11.2026"]}
+{"id": "pii-ticket", "input": "What's the status of IT-1042 and IT-1043?", "expect": [], "keep": ["IT-1042", "IT-1043"]}
+{"id": "pii-amounts", "input": "Can I expense a 250 EUR hotel for 2 nights in Zurich?", "expect": [], "keep": ["250 EUR", "2 nights"]}
+{"id": "pii-time", "input": "Core hours are 10:00 to 15:00, right?", "expect": [], "keep": ["10:00", "15:00"]}

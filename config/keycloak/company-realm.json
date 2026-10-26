@@ -1,0 +1,79 @@
+{
+  "realm": "company",
+  "enabled": true,
+  "displayName": "Acme Corp",
+  "sslRequired": "none",
+  "accessTokenLifespan": 900,
+  "roles": {
+    "realm": [
+      {"name": "employee", "description": "All staff"},
+      {"name": "manager", "description": "People managers"},
+      {"name": "hr", "description": "People Team"},
+      {"name": "it-support", "description": "IT Helpdesk"},
+      {"name": "admin", "description": "Assistant administrators"}
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "assistant-api",
+      "name": "Company Assistant API",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "dev-assistant-api-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false
+    },
+    {
+      "clientId": "assistant-web",
+      "name": "Company Assistant (web and CLI, dev)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:*"],
+      "webOrigins": ["+"],
+      "attributes": {"pkce.code.challenge.method": "S256"},
+      "protocolMappers": [
+        {
+          "name": "audience-assistant-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "assistant-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice", "email": "alice@acme.example", "firstName": "Alice", "lastName": "Andersen",
+      "enabled": true, "emailVerified": true, "realmRoles": ["employee"],
+      "credentials": [{"type": "password", "value": "alice", "temporary": false}]
+    },
+    {
+      "username": "mark", "email": "mark@acme.example", "firstName": "Mark", "lastName": "Madsen",
+      "enabled": true, "emailVerified": true, "realmRoles": ["employee", "manager"],
+      "credentials": [{"type": "password", "value": "mark", "temporary": false}]
+    },
+    {
+      "username": "hanna", "email": "hanna@acme.example", "firstName": "Hanna", "lastName": "Holm",
+      "enabled": true, "emailVerified": true, "realmRoles": ["employee", "hr"],
+      "credentials": [{"type": "password", "value": "hanna", "temporary": false}]
+    },
+    {
+      "username": "ivan", "email": "ivan@acme.example", "firstName": "Ivan", "lastName": "Iversen",
+      "enabled": true, "emailVerified": true, "realmRoles": ["employee", "it-support"],
+      "credentials": [{"type": "password", "value": "ivan", "temporary": false}]
+    },
+    {
+      "username": "ada", "email": "ada@acme.example", "firstName": "Ada", "lastName": "Admin",
+      "enabled": true, "emailVerified": true, "realmRoles": ["employee", "admin"],
+      "credentials": [{"type": "password", "value": "ada", "temporary": false}]
+    }
+  ]
+}

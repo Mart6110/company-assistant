@@ -1,0 +1,10 @@
+# MCP servers the assistant connects to (streamable HTTP). Tool names are exposed as
+# <name>__<tool>; add each one to config/rbac.yaml or it stays hidden.
+# `audience` is used when MCP_TOKEN_MODE=exchange (defaults to the server name).
+servers:
+  - name: hr
+    url: http://hr-mcp:8101/mcp
+  - name: jira
+    url: http://jira-mcp:8102/mcp
+  - name: slack
+    url: http://slack-mcp:8103/mcp

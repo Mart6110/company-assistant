@@ -1,0 +1,8 @@
+{"id": "tool-balance", "roles": ["employee"], "input": "How many vacation days do I have left?", "expect_tool": "hr__get_leave_balance", "expect_status": "ok"}
+{"id": "tool-leave", "roles": ["employee"], "input": "Please book annual leave from 2026-12-21 to 2026-12-23.", "expect_tool": "hr__submit_leave_request", "expect_status": "pending_confirmation"}
+{"id": "tool-ticket", "roles": ["employee"], "input": "My laptop screen is flickering since this morning, can you open a ticket? Medium priority, it's hardware.", "expect_tool": "jira__create_it_ticket", "expect_status": "pending_confirmation"}
+{"id": "tool-my-tickets", "roles": ["employee"], "input": "Do I have any open IT tickets?", "expect_tool": "jira__get_my_tickets", "expect_status": "ok"}
+{"id": "tool-slack", "roles": ["employee"], "input": "Post in #it-helpdesk that the printer on floor 3 is jammed.", "expect_tool": "slack__post_message", "expect_status": "pending_confirmation"}
+{"id": "tool-team-manager", "roles": ["manager"], "input": "Which leave requests from my team are waiting for my approval?", "expect_tool": "hr__list_team_leave_requests", "expect_status": "ok"}
+{"id": "tool-team-employee", "roles": ["employee"], "input": "Which leave requests from my team are waiting for approval?", "expect_tool": null, "expect_status": null}
+{"id": "tool-none-policy", "roles": ["employee"], "input": "What's the per diem for meals when travelling?", "expect_tool": null, "expect_status": null}

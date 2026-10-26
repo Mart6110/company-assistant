@@ -1,0 +1,6 @@
+# USD per million tokens, keyed by "<provider>:<model>" as used in SMALL_MODEL / FRONTIER_MODEL.
+# Used for the cost column in the prompt log and the eval cost gate. Check current prices
+# with your provider and add entries for any OpenAI / Azure models you configure.
+anthropic:claude-haiku-5-5:  {input: 0.10, output: 0.50, cache_read: 0.01}
+anthropic:claude-sonnet-5-5: {input: 2.00, output: 10.00, cache_read: 0.20}
+anthropic:claude-opus-5-5:   {input: 4.00, output: 20.00, cache_read: 0.20}

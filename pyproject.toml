@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "company-assistant"
+version = "0.1.0"
+description = "Provider-agnostic company AI assistant: RAG over policies, MCP tools, RBAC, guardrails, semantic cache, model routing, tracing and evals."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=2.3,<3",
+    "openai>=3.37,<4",
+    "mcp>=2.3,<3",
+    "fastapi>=0.162",
+    "uvicorn[standard]>=0.54",
+    "pydantic>=2.14",
+    "pydantic-settings>=2.15",
+    "asyncpg>=0.32",
+    "pgvector>=0.5",
+    "redis>=8.1",
+    "numpy>=2.2",
+    "pyjwt[crypto]>=2.15",
+    "pyyaml>=6.0",
+    "jsonschema>=4.26",
+    "opentelemetry-api>=1.45",
+    "opentelemetry-sdk>=1.45",
+    "opentelemetry-exporter-otlp-proto-http>=1.45",
+    "opentelemetry-instrumentation-fastapi>=0.66b1",
+]
+
+[project.optional-dependencies]
+pdf = ["pypdf>=5"]
+dev = ["pytest>=9", "pytest-asyncio>=1.4", "ruff>=0.17"]
+
+[tool.setuptools.packages.find]
+include = ["assistant*", "evals*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["integration: needs the docker compose stack (postgres, redis)"]
+addopts = "-m 'not integration'"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["E501"]
